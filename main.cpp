@@ -17,7 +17,7 @@ int img_hig(800);
 int img_bit(3);
 
 const int nWidthParser(2048);;
-const int nheightParser(1088);
+const int nheightParser(1088);;
 
 /*
 ÆÛ¿È
@@ -45,7 +45,7 @@ int linreg(int n, const REAL x[], const REAL y[], REAL* m, REAL* b, REAL* r)
 	{
 		sumx += x[i];
 		sumx2 += sqr(x[i]);
-		sumxy += x[i] * y[i];
+		sumxy += x[i] * y[i];;
 		sumy += y[i];
 		sumy2 += sqr(y[i]);
 	}
