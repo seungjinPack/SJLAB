@@ -12,12 +12,12 @@
 
 
 int nDataSaveNum(0);
-int img_wid(1024);
-int img_hig(800);
+int img_wid(800);
+int img_hig(600);
 int img_bit(3);
 
-const int nWidthParser(2048);;
-const int nheightParser(1088);;
+const int nWidthParser(2048);
+const int nheightParser(1088);
 
 /*
 퍼옴
@@ -45,8 +45,8 @@ int linreg(int n, const REAL x[], const REAL y[], REAL* m, REAL* b, REAL* r)
 	{
 		sumx += x[i];
 		sumx2 += sqr(x[i]);
-		sumxy += x[i] * y[i];;
-		sumy += y[i];;
+		sumxy += x[i] * y[i];
+		sumy += y[i];
 		sumy2 += sqr(y[i]);
 	}
 
@@ -166,13 +166,12 @@ void DotPoint(Global::Image *mImageParser, const int nPosX, const int nPosY, RGB
 }
 
 
-
-float fSurchDiff(10);
-int Line(Global::Image *mImageParser, float* pParser_CSV, Sample &mSample, const bool bSw = false, const bool bVisible = false)
+float fSurchDiff(2);
+int Line(Global::Image *mImageParser, float* pParser_CSV, Sample &mSample, const bool bSw = false)
 {
 	//float fRandY0 = GlobalTool::Max(pParser_CSV[nRandX0], pParser_CSV[nRandX1]);
 	//float fRandY1 = GlobalTool::Min(pParser_CSV[nRandX0], pParser_CSV[nRandX1]);
-
+	
 
 	float fLSX[2000] = { 0, };
 	float fLSY[2000] = { 0, };
@@ -190,8 +189,8 @@ int Line(Global::Image *mImageParser, float* pParser_CSV, Sample &mSample, const
 	float fV = fRandY1 - fRandY0;
 	float fM = (fV / fU);
 	float nSurchDiff0;
-
-
+	
+	
 	if (fM < 0)
 	{
 		nSurchDiff0 = fSurchDiff;
@@ -207,18 +206,19 @@ int Line(Global::Image *mImageParser, float* pParser_CSV, Sample &mSample, const
 
 	//double rad = atan2(fU, fV);
 	//double degree = ((rad * 180) / M_PI);
-	if (abs(fDegree) >= 10)
+	if (abs(fDegree) >= 30)
 	{
 		//printf("height : %f  %f  \n", fRandY0, fRandY1);
 		//printf("slope : %f \n", (atan(fM) * 180) / M_PI);
 		return 0;
 	}
 
-
-	if (mImageParser && bVisible)
+	
+	if (mImageParser && bSw)
 	{
 		Global::Circle(mImageParser, mSample.nX0, fRandY0, 15, RGB8(0, 255, 255));
 		Global::Circle(mImageParser, mSample.nX1, fRandY1, 15, RGB8(0, 255, 255));
+		//printf("slope : %f \n", atan(fM));
 	}
 
 
@@ -230,11 +230,11 @@ int Line(Global::Image *mImageParser, float* pParser_CSV, Sample &mSample, const
 		//printf("x: %d  y : %d  y : %d \n", i, nY0, nY1);
 		if (nY0 < nheightParser || nY0 > 0)
 		{
-			if (mImageParser && bVisible)
+			if (mImageParser)
 			{
-				Global::Line(mImageParser, (i - 1), nY0, (i + 1), nY1, RGB8(0, 255, 0));
-				Global::Line(mImageParser, (i - 1) - nSurchDiff0, nY0 - fSurchDiff, (i + 1) - nSurchDiff0, nY1 - fSurchDiff, RGB8(0, 255, 0));
-				Global::Line(mImageParser, (i - 1) + nSurchDiff0, nY0 + fSurchDiff, (i + 1) + nSurchDiff0, nY1 + fSurchDiff, RGB8(0, 255, 0));
+				//Global::Line(mImageParser, (i - 1), nY0, (i + 1), nY1, RGB8(0, 255, 0));
+				//Global::Line(mImageParser, (i - 1) - nSurchDiff0, nY0 - fSurchDiff, (i + 1) - nSurchDiff0, nY1 - fSurchDiff, RGB8(0, 255, 0));
+				//Global::Line(mImageParser, (i - 1) + nSurchDiff0, nY0 + fSurchDiff, (i + 1) + nSurchDiff0, nY1 + fSurchDiff, RGB8(0, 255, 0));
 			}
 
 
@@ -242,12 +242,12 @@ int Line(Global::Image *mImageParser, float* pParser_CSV, Sample &mSample, const
 			{
 				float fSurchPointMin = fM * ((i + 1) - mSample.nX0 + nSurchDiff0) + fRandY0;
 				float fSurchPointMax = fM * ((i + 1) - mSample.nX0 - nSurchDiff0) + fRandY0;
-				if (pParser_CSV[i + 1] > fSurchPointMin - fSurchDiff && pParser_CSV[i + 1] < fSurchPointMax + fSurchDiff)
+				if (pParser_CSV[i + 1] > fSurchPointMin - nSurchDiff0 && pParser_CSV[i + 1] < fSurchPointMax + nSurchDiff0)
 				{
 					fLSX[nCount] = i + 1;
 					fLSY[nCount++] = pParser_CSV[i + 1];
 					mSample.nSn++;
-					if (mImageParser && bVisible)
+					if (mImageParser && bSw)
 					{
 						Global::Circle(mImageParser, i + 1, pParser_CSV[i + 1], 2, RGB8(255, 0, 0));
 					}
@@ -257,15 +257,15 @@ int Line(Global::Image *mImageParser, float* pParser_CSV, Sample &mSample, const
 			}
 		}
 	}
-
-
+	
+	
 	if (bSw)
 	{
 		linreg(nCount, fLSX, fLSY, &mSample.m, &mSample.b, &mSample.r);
 		//Global::Line(mImageParser, 1, m + b, (mImageParser->width - nSurchDiff0), m*(mImageParser->width - nSurchDiff0) + b, RGB8(255, 0, 0));
 		printf("m=%g b=%g r=%g  Ag=%f MeanAg=%f \n", mSample.m, mSample.b, mSample.r, fDegree, (atan(mSample.m) * 180) / M_PI);
 	}
-	if (mImageParser && bVisible)
+	if (mImageParser && bSw)
 	{
 		for (int i = 1; i < nWidthParser - 1; i++)
 		{
@@ -347,7 +347,6 @@ int main()
 		memcpy(mArrVecParserCopy, mArrVecParser_CSV, sizeof(float)* nWidthParser);
 
 		Global::Image mImageParser(nWidthParser, nheightParser, Global::TYPE::BYTE, 3);
-		Global::Image mImageParser_Copy(nWidthParser, nheightParser, Global::TYPE::BYTE, 3);
 		Global::Image mImageParser2(nWidthParser, nheightParser, Global::TYPE::BYTE, 3);
 		Global::Image mImageParserReSize(img_wid, img_hig, Global::TYPE::BYTE, 3);
 
@@ -356,8 +355,6 @@ int main()
 			Global::Circle(&mImageParser, i, mArrVecParserCopy[i], 1, RGB8(0, 0, 255));
 		}
 
-		mImageParser_Copy = mImageParser;
-
 #if 0
 		int nXTest0 = 800;
 		int nXTest1 = 900;
@@ -365,10 +362,10 @@ int main()
 		Sample sSample;
 		sSample.nX0 = nXTest0;
 		sSample.nX1 = nXTest1;
-		Line(&mImageParser_Copy, mArrVecParserCopy, sSample, true);
+		Line(&mImageParser, mArrVecParserCopy, sSample,true);
 		nXTest0 = 400;
 		nXTest1 = 810;
-		//Line(&mImageParser_Copy, nXTest0, nXTest1, mArrVecParserCopy, nTest, true);
+		//Line(&mImageParser, nXTest0, nXTest1, mArrVecParserCopy, nTest, true);
 
 
 		//DeletePoint(nWidthParser, nheightParser, 400, 700, mArrVecParserCopy);
@@ -394,7 +391,7 @@ int main()
 			int nMaxSampleArrNum = 0;
 			while (nSample - nArrNumderSize)
 			{
-				float fCutLine = nheightParser / 1.5;
+				float fCutLine = nheightParser / 1.2;
 				int nRandX0 = (std::rand() % nWidthParser);//중복은 나중에 고려
 				int nRandX1 = (std::rand() % nWidthParser);//중복은 나중에 고려
 
@@ -406,7 +403,7 @@ int main()
 
 				sSample[nSampleCount].nX0 = nRandX0;
 				sSample[nSampleCount].nX1 = nRandX1;
-				if (Line(0, mArrVecParserCopy, sSample[nSampleCount]))
+				if (Line(&mImageParser, mArrVecParserCopy, sSample[nSampleCount]))
 				{
 					if (sSample[nSampleCount].nSn > nMaxSample && sSample[nSampleCount].nSn > 10)
 					{
@@ -415,17 +412,17 @@ int main()
 						nSampleCount++;
 						//printf(" nMaxSampleArrNum : %d \n", nMaxSampleArrNum);
 					}
-					//mImageParser_Copy = mImageParser;
+
 					nArrNumderSize++;
-
+					
 				}
-
+				
 
 
 			}
 			//mVecParserCopy
 
-
+		
 			if (nSampleCount > 0)
 			{
 				Line(0, mArrVecParserCopy, sSample[nMaxSampleArrNum], true);
@@ -438,7 +435,7 @@ int main()
 
 			if (nSampleCount > 0)
 			{
-				Line(&mImageParser_Copy, mArrVecParserCopy, sSample[nMaxSampleArrNum], true);
+				Line(&mImageParser, mArrVecParserCopy, sSample[nMaxSampleArrNum], true);
 				DeletePoint(nWidthParser, nheightParser, sSample[nMaxSampleArrNum], mArrVecParserCopy);
 
 
@@ -449,22 +446,22 @@ int main()
 			}
 			//break;
 		}
-
+	
 
 
 
 
 #endif
 #if 0
-		Global::Show("Parser ", &mImageParser_Copy);
+		Global::Show("Parser ", &mImageParser);
 		Global::Show("Test ", &mImageParser2);
 #else	
 		Global::Filter2D(&mImageParser2, &mImageParser2, Global::FILTER::GAUSSIAN, 1);
 		Global::ReSize(&mImageParser2, &mImageParserReSize);
 		Global::Show("Test ", &mImageParserReSize);
 
-		Global::Filter2D(&mImageParser_Copy, &mImageParser_Copy, Global::FILTER::GAUSSIAN, 1);
-		Global::ReSize(&mImageParser_Copy, &mImageParserReSize);
+		Global::Filter2D(&mImageParser, &mImageParser, Global::FILTER::GAUSSIAN, 1);
+		Global::ReSize(&mImageParser, &mImageParserReSize);
 		Global::Show("Parser ", &mImageParserReSize);
 #endif
 
@@ -479,3 +476,62 @@ int main()
 #endif
 
 
+
+
+#if 0
+const unsigned uWidthLen = nWidthParser * 2;
+const unsigned nIndexSize = uWidthLen * nheightParser;
+unsigned char pData[nIndexSize];
+unsigned char pDataCopy[nIndexSize];
+int main()
+{
+	Global::Image *pImage = Global::DataLoad("../../../Resource/polygon2.bmp");
+	Global::Image mImageParser(nWidthParser, nheightParser, Global::TYPE::BYTE, 1);
+	Global::Image mImageParser_Temp(nWidthParser, nheightParser, Global::TYPE::BYTE, 1);
+	Global::Image mImageParser2(nheightParser, nWidthParser,  Global::TYPE::BYTE, 1);
+
+	Global::ReSize(pImage, &mImageParser);
+	delete pImage;
+
+	Global::Show("Test ..", &mImageParser);
+
+
+
+
+	ProfTimer mProfTimer;
+	while (1)
+	{
+		
+		
+
+		mProfTimer.Start();
+
+		//Global::Reflection(&mImageParser, &mImageParser_Temp, Global::REFLECTION::VERTICAL);
+		
+		
+		//unsigned char *data = mImageParser2.data.b; 
+		//unsigned char *data2 = mImageParser.data.b;
+		unsigned char *data = pData; 
+		unsigned char *data2 = pDataCopy;
+		for (long x = 0; x < uWidthLen; x++)
+		{
+			for (long y = 0; y < nheightParser; y++)
+			{
+				long lIndex(y * (uWidthLen)+x);
+				memcpy(data, data2 + lIndex, 2);
+				data += 2;
+
+				//*(data) = *(data2 + lIndex);
+				//*(data++) = *(data2 + lIndex + 1);
+			}
+		}
+		
+		mProfTimer.Stop();
+		
+		printf("mProfTimer : %f \n", mProfTimer.GetDurationInSecs());
+		Global::Show("Test2 ..", &mImageParser2);
+	}
+	return 0;
+}
+
+#endif
