@@ -10,6 +10,13 @@
 #include <conio.h>
 #include <string>
 
+int tttt()
+{
+	
+	//eeeeeeeeeeeeee
+	
+}
+
 
 int nDataSaveNum(0);
 int img_wid(1024);
